@@ -1,6 +1,3 @@
-## Marcel Udemy Course
-https://marcelclasses.udemy.com/course/fastapi-course/learn/lecture/26861476#overview
-
 ## Github Repository
 https://github.com/nofoobar/fastapi-course
 
