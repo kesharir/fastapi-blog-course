@@ -1,6 +1,7 @@
 from backend.db.base import Base
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
+from backend.db.models.blog import Blog
 
 class User(Base):
     __tablename__ = "users"

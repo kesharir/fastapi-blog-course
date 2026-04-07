@@ -1,16 +1,20 @@
 from fastapi import FastAPI
+
+from backend.apis.base import api_router
 from backend.core.config import settings
 from backend.db.session import engine
-from backend.db.models.user import User
-from backend.db.models.blog import Blog
 from backend.db.base_class import Base
+
+def include_router(app):
+    app.include_router(api_router)
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
 
 def start_application():
     app = FastAPI(title=settings.PROJECT_TITLE, version=settings.PROJECT_VERSION)
-    # create_tables() -- Tab;es shouldn't be created this way
+    include_router(app)
+    # create_tables() -- Tables shouldn't be created this way
     return app
 
 app = start_application()
