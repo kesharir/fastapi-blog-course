@@ -1,7 +1,9 @@
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi import Depends, APIRouter, status, HTTPException
 from sqlalchemy.orm import Session
+from jose import jwt, JWTError
 
+from backend.core.config import settings
 from backend.db.session import get_db
 from backend.core.hashing import Hasher
 from backend.db.repository.login import get_user_by_email
@@ -32,3 +34,22 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credential_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials, Please login again"
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms= [settings.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credential_exception
+    except JWTError:
+        raise credential_exception
+    user = get_user_by_email(email=email, db=db)
+    if user is None:
+        raise credential_exception
+    return user
